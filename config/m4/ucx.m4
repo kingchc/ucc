@@ -8,6 +8,7 @@ UCX_MIN_REQUIRED_MAJOR=1
 UCX_MIN_REQUIRED_MINOR=11
 AS_IF([test "x$ucx_checked" != "xyes"],[
     ucx_happy="no"
+    ucs_happy="no"
 
     AC_ARG_WITH([ucx],
             [AS_HELP_STRING([--with-ucx=(DIR)], [Enable the use of UCX (default is guess).])],
@@ -62,8 +63,9 @@ AS_IF([test "x$ucx_checked" != "xyes"],[
             AC_CHECK_LIB([ucs], [ucs_get_system_id],
             [
                 AC_DEFINE([HAVE_UCS_GET_SYSTEM_ID], 1, [Enable use of ucs unique machine identifier])
+                ucs_happy="yes"
             ],
-            [],[-luct -lucm -lucp])
+            [],[-lucm])
         ],
         [])
 
@@ -93,6 +95,20 @@ AS_IF([test "x$ucx_checked" != "xyes"],[
             AC_SUBST(UCX_LIBADD, "-lucp -lucm")
             AC_SUBST(UCS_LIBADD, "-lucs")
         ],
+        [test "x$ucs_happy" = "xyes"],
+        [
+            AS_IF([test "x$check_ucx_dir" != "x"],
+            [
+                AC_SUBST(UCS_CPPFLAGS, "-I$check_ucx_dir/include/")
+            ])
+
+            AS_IF([test "x$check_ucx_libdir" != "x"],
+            [
+                AC_SUBST(UCS_LDFLAGS, "-L$check_ucx_libdir")
+            ])
+
+            AC_SUBST(UCS_LIBADD, "-lucs")
+        ],
         [
             AS_IF([test "x$with_ucx" != "xguess"],
             [
@@ -114,5 +130,6 @@ AS_IF([test "x$ucx_checked" != "xyes"],[
 
     ucx_checked=yes
     AM_CONDITIONAL([HAVE_UCX], [test "x$ucx_happy" != xno])
+    AM_CONDITIONAL([HAVE_UCS], [test "x$ucs_happy" != xno])
 ])
 ])

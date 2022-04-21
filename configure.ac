@@ -170,7 +170,10 @@ AS_IF([test "x$with_docs_only" = xyes],
      CHECK_UCX
      AC_MSG_RESULT([UCX support: $ucx_happy])
      if test $ucx_happy != "yes"; then
-         AC_MSG_ERROR([UCX is not available])
+         AC_MSG_WARN([UCX is not available...try with only UCS/UCM])
+     fi
+     if test $ucs_happy != "yes"; then
+         AC_MSG_ERROR([UCS/UCM is not available])
      fi
 
      CHECK_CUDA
